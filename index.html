@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#dc2626">
+    <title>Prenotazione Rinnovo - Autoscuola ABA</title>
+    
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <style>
+        /* Reset e Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #1a1a1a;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Container Mobile First */
+        .container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Header Mobile */
+        .header {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            background: #fafafa;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .logo {
+            margin-bottom: 1rem;
+        }
+
+        .logo-text {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            color: #1a1a1a;
+            font-family: 'Arial Black', sans-serif;
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo-text::after {
+            content: '';
+            position: absolute;
+            bottom: 0.8rem;
+            left: -10%;
+            right: -10%;
+            height: 0.4rem;
+            background: #dc2626;
+            transform: skew(-15deg);
+            z-index: -1;
+        }
+
+        .logo-subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 0.3rem;
+            color: #1a1a1a;
+            margin-top: -0.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.3rem;
+            color: #1a1a1a;
+            font-weight: 400;
+            margin-top: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Card Mobile */
+        .card {
+            background: white;
+            padding: 1.5rem 1rem;
+        }
+
+        /* Section Title Mobile */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #dc2626;
+            position: relative;
+        }
+
+        /* Form Groups Mobile */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+            font-size: 0.9375rem;
+        }
+
+        .form-group label span {
+            color: #666;
+            font-weight: normal;
+            font-size: 0.75rem;
+        }
+
+        /* Input Styles Mobile Optimized */
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background: #ffffff;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        /* Focus States for Mobile */
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        /* Specific Input Types for Mobile */
+        input[type="date"] {
+            min-height: 3rem;
+            position: relative;
+        }
+
+        input[type="tel"] {
+            font-variant-numeric: tabular-nums;
+        }
+
+        input[type="email"] {
+            text-transform: lowercase;
+        }
+
+        /* Select Arrow for Mobile */
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5rem;
+            padding-right: 3rem;
+        }
+
+        /* Textarea Mobile */
+        textarea {
+            resize: vertical;
+            min-height: 5rem;
+        }
+
+        /* Box Orari Mobile */
+        .orari-box {
+            border: 2px solid #dc2626;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .orari-header {
+            background: #dc2626;
+            padding: 0.75rem 1rem;
+        }
+
+        .orari-header h4 {
+            margin: 0;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .orari-content {
+            padding: 1rem;
+            background: white;
+        }
+
+        .orari-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.75rem 1rem;
+            align-items: center;
+        }
+
+        .orari-giorno {
+            font-weight: 700;
+            color: #dc2626;
+            font-size: 1rem;
+        }
+
+        .orari-ora {
+            color: #666;
+            font-size: 0.9375rem;
+        }
+
+        /* Info Box Mobile */
+        .info-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .info-icon {
+            color: #6c757d;
+            font-size: 1.25rem;
+            margin-top: 0.125rem;
+            flex-shrink: 0;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-content p {
+            margin: 0;
+            color: #495057;
+            font-size: 0.8125rem;
+            line-height: 1.5;
+        }
+
+        .info-content strong {
+            color: #212529;
+        }
+
+        /* Time Slots Mobile */
+        .time-slots {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .time-slot {
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #fafafa;
+            -webkit-tap-highlight-color: rgba(220, 38, 38, 0.1);
+            touch-action: manipulation;
+            min-height: 4.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .time-slot:active {
+            transform: scale(0.98);
+        }
+
+        .time-slot.selected {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+        .time-slot strong {
+            display: block;
+            font-size: 0.9375rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .time-slot span {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        /* Checkbox Mobile */
+        .checkbox-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-top: 0.125rem;
+            cursor: pointer;
+            accent-color: #dc2626;
+            flex-shrink: 0;
+        }
+
+        .checkbox-wrapper label {
+            flex: 1;
+            font-size: 0.8125rem;
+            color: #666;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        /* Button Mobile */
+        .btn {
+            width: 100%;
+            padding: 1.125rem;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.025em;
+            margin-top: 1.5rem;
+            touch-action: manipulation;
+            min-height: 3.5rem;
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Loading State */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f0f0f0;
+            border-top: 3px solid #dc2626;
+            border-radius: 50%;
+            width: 3rem;
+            height: 3rem;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success State */
+        .success {
+            display: none;
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .success.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(0.625rem); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .success-icon {
+            width: 4.5rem;
+            height: 4.5rem;
+            background: #4CAF50;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.25rem;
+            color: white;
+        }
+
+        .success h2 {
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .success p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.9375rem;
+        }
+
+        .success a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* Required Asterisk */
+        .required {
+            color: #dc2626;
+            font-weight: normal;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #dc262620, transparent);
+            margin: 1.5rem 0;
+        }
+
+        /* Footer Mobile */
+        .footer-info {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem 1rem;
+            color: #999;
+            font-size: 0.75rem;
+            line-height: 1.6;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .footer-info strong {
+            color: #dc2626;
+        }
+
+        /* Upload Section Styles */
+        .upload-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-option {
+            background: #fef4f4;
+            border: 2px dashed #dc2626;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .upload-area {
+            position: relative;
+        }
+
+        .upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem 1rem;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .upload-label:active {
+            transform: scale(0.98);
+            background: #fafafa;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+        }
+
+        .upload-text strong {
+            color: #dc2626;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .preview-container {
+            position: relative;
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .preview-container img {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: contain;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+
+        .remove-photo {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(220, 38, 38, 0.9);
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .remove-photo:active {
+            transform: scale(0.95);
+        }
+
+        .divider-with-text {
+            text-align: center;
+            position: relative;
+            margin: 1.5rem 0;
+        }
+
+        .divider-with-text::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e5e7eb;
+            z-index: 0;
+        }
+
+        .divider-with-text span {
+            position: relative;
+            background: white;
+            padding: 0 1rem;
+            color: #999;
+            font-size: 0.875rem;
+            z-index: 1;
+        }
+
+        .upload-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #155724;
+        }
+
+        .upload-success.show {
+            display: flex;
+        }
+
+        /* Tablet Styles (iPad, etc) */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 2rem;
+            }
+
+            .header {
+                border-radius: 1rem;
+                margin-bottom: 2rem;
+                padding: 2rem;
+            }
+
+            .card {
+                border-radius: 1rem;
+                padding: 2rem;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+
+            .logo-text {
+                font-size: 4rem;
+            }
+
+            .logo-subtitle {
+                font-size: 1.5rem;
+                letter-spacing: 0.5rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .time-slots {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            .container {
+                padding: 3rem;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                padding: 0.875rem 1rem;
+            }
+
+            .btn:hover:not(:disabled) {
+                background: #b91c1c;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(220, 38, 38, 0.25);
+            }
+
+            .time-slot:hover {
+                border-color: #dc2626;
+                background: #fef2f2;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(220, 38, 38, 0.1);
+            }
+        }
+
+        /* iOS Specific Fixes */
+        @supports (-webkit-touch-callout: none) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
+
+        /* Android Specific Fixes */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            select {
+                background-color: #fff;
+            }
+        }
+
+        /* Landscape Mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .header {
+                padding: 1rem;
+            }
+
+            .logo-text {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                margin-bottom: 1rem;
+            }
+
+            .form-group {
+                margin-bottom: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-text">ABA</div>
+                <div class="logo-subtitle">AUTOSCUOLE</div>
+            </div>
+            <h1>Prenotazione Rinnovo Patente</h1>
+            <p>Compila il modulo e sarai ricontattato entro 24 ore</p>
+        </div>
+
+        <div class="card">
+            <form id="prenotazioneForm" autocomplete="on">
+                <!-- Dati Personali -->
+                <h2 class="section-title">Dati Personali</h2>
+                
+                <div class="form-group">
+                    <label for="nome">Nome <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="nome"
+                        name="nome" 
+                        required 
+                        placeholder="Inserisci il tuo nome"
+                        autocomplete="given-name"
+                        autocorrect="off"
+                        autocapitalize="words"
+                        inputmode="text"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="cognome">Cognome <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="cognome"
+                        name="cognome" 
+                        required 
+                        placeholder="Inserisci il tuo cognome"
+                        autocomplete="family-name"
+                        autocorrect="off"
+                        autocapitalize="words"
+                        inputmode="text"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Numero di Telefono <span class="required">*</span></label>
+                    <input 
+                        type="tel" 
+                        id="telefono"
+                        name="telefono" 
+                        required 
+                        placeholder="333 1234567"
+                        autocomplete="tel"
+                        inputmode="tel"
+                        pattern="[0-9\s\-\+\(\)]+"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Indirizzo Email</label>
+                    <input 
+                        type="email" 
+                        id="email"
+                        name="email" 
+                        placeholder="nome.cognome@email.com"
+                        autocomplete="email"
+                        inputmode="email"
+                        autocorrect="off"
+                        autocapitalize="none"
+                    >
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Dati Patente -->
+                <h2 class="section-title">Informazioni Patente</h2>
+
+                <div class="info-box">
+                    <div class="info-icon">ℹ️</div>
+                    <div class="info-content">
+                        <p>
+                            <strong>Dove trovare questi dati:</strong><br>
+                            Il <strong>numero patente</strong> si trova al punto 5 del documento<br>
+                            La <strong>data di scadenza</strong> si trova al punto 4b del documento
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Opzione Upload Foto -->
+                <div class="upload-section">
+                    <div class="upload-option">
+                        <div class="upload-header">
+                            <span style="font-size: 1.5rem; margin-right: 0.5rem;">📸</span>
+                            <div>
+                                <strong style="color: #dc2626;">Opzione Rapida</strong>
+                                <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #666;">
+                                    Carica una foto della patente e compileremo i dati per te
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="upload-area" id="uploadArea">
+                            <input 
+                                type="file" 
+                                id="foto_patente"
+                                name="foto_patente" 
+                                accept="image/*"
+                                capture="environment"
+                                style="display: none;"
+                                onchange="handleFileUpload(this)"
+                            >
+                            <label for="foto_patente" class="upload-label">
+                                <div class="upload-icon">📷</div>
+                                <div class="upload-text">
+                                    <strong>Scatta o carica una foto</strong><br>
+                                    <span style="font-size: 0.75rem; color: #999;">
+                                        Tocca per aprire la fotocamera
+                                    </span>
+                                </div>
+                            </label>
+                            <div id="preview" class="preview-container" style="display: none;">
+                                <img id="previewImage" alt="Anteprima patente">
+                                <button type="button" class="remove-photo" onclick="removePhoto()">
+                                    ✕ Rimuovi foto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider-with-text">
+                        <span>oppure inserisci manualmente</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="numero_patente">Numero Patente <span>(punto 5)</span></label>
+                    <input 
+                        type="text" 
+                        id="numero_patente"
+                        name="numero_patente" 
+                        placeholder="Es: VI1234567X" 
+                        style="text-transform: uppercase;"
+                        autocorrect="off"
+                        autocapitalize="characters"
+                        inputmode="text"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="data_scadenza">Data di Scadenza <span>(punto 4b)</span></label>
+                    <input 
+                        type="date" 
+                        id="data_scadenza"
+                        name="data_scadenza"
+                    >
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Preferenze Orario -->
+                <h2 class="section-title">Disponibilità</h2>
+
+                <div class="orari-box">
+                    <div class="orari-header">
+                        <h4>Orari di ricevimento</h4>
+                    </div>
+                    <div class="orari-content">
+                        <div class="orari-grid">
+                            <div class="orari-giorno">LUNEDÌ</div>
+                            <div class="orari-ora">ore 18:00</div>
+                            <div class="orari-giorno">GIOVEDÌ</div>
+                            <div class="orari-ora">ore 18:30</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="preferenza_orario">Seleziona la tua preferenza</label>
+                    <div class="time-slots">
+                        <div class="time-slot" onclick="selectSlot(this, 'Lunedì 18:00')" role="button" tabindex="0">
+                            <strong>Lunedì</strong>
+                            <span>ore 18:00</span>
+                        </div>
+                        <div class="time-slot" onclick="selectSlot(this, 'Giovedì 18:30')" role="button" tabindex="0">
+                            <strong>Giovedì</strong>
+                            <span>ore 18:30</span>
+                        </div>
+                        <div class="time-slot" onclick="selectSlot(this, 'Entrambi i giorni')" role="button" tabindex="0">
+                            <strong>Entrambi</strong>
+                            <span>indifferente</span>
+                        </div>
+                        <div class="time-slot" onclick="selectSlot(this, 'Da concordare telefonicamente')" role="button" tabindex="0">
+                            <strong>Da concordare</strong>
+                            <span>telefonicamente</span>
+                        </div>
+                    </div>
+                    <input type="hidden" name="preferenza_orario" id="preferenza_orario">
+                </div>
+
+                <div class="form-group">
+                    <label for="note">Note o richieste particolari</label>
+                    <textarea 
+                        id="note"
+                        name="note" 
+                        rows="3" 
+                        placeholder="Eventuali urgenze, disponibilità specifiche, ecc."
+                        autocomplete="off"
+                        inputmode="text"
+                    ></textarea>
+                </div>
+
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="privacy" required>
+                    <label for="privacy">
+                        Acconsento al trattamento dei miei dati personali ai sensi del Regolamento UE 2016/679 (GDPR) 
+                        per le finalità connesse alla gestione della prenotazione. <span class="required">*</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    Invia Richiesta di Prenotazione
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Invio in corso...</p>
+            </div>
+
+            <div class="success" id="success">
+                <div class="success-icon">✓</div>
+                <h2>Richiesta Inviata con Successo!</h2>
+                <p>
+                    La tua prenotazione è stata registrata.<br>
+                    Sarai ricontattato entro 24 ore lavorative per confermare l'appuntamento.<br><br>
+                    <strong style="color: #dc2626;">Autoscuola ABA</strong><br>
+                    Galleria G.B. Verci 6, Bassano del Grappa<br>
+                    Tel: <a href="tel:0424523690">0424 523690</a><br>
+                    <span style="color: #25D366; font-weight: 500;">
+                        📱 WhatsApp: <a href="https://wa.me/390424523690" style="color: #25D366;">0424 523690</a>
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <div class="footer-info">
+            © 2025 <strong>Autoscuola ABA</strong> - Tutti i diritti riservati<br>
+            Galleria G.B. Verci 6, 36061 Bassano del Grappa<br>
+            Tel: 0424 523690 - P.IVA 00197170244
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // ========================================
+        // CONFIGURAZIONE EMAILJS
+        // ========================================
+        
+        const SERVICE_ID = "service_csu7nsa";
+        const TEMPLATE_ID = "template_9szlblp";
+        const PUBLIC_KEY = "1fQmEOpOYsK7lRRcu";
+        
+        // ========================================
+        // INIZIALIZZAZIONE
+        // ========================================
+
+        // Inizializza EmailJS
+        emailjs.init(PUBLIC_KEY);
+
+        // Variabile per memorizzare l'immagine compressa
+        let compressedImageData = null;
+
+
+        // ========================================
+        // GESTIONE UPLOAD FOTO
+        // ========================================
+        
+        function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Verifica tipo file
+            if (!file.type.startsWith('image/')) {
+                alert('Per favore seleziona un file immagine');
+                input.value = '';
+                return;
+            }
+
+            // Verifica dimensione file (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('La foto è troppo grande. Massimo 5MB.');
+                input.value = '';
+                return;
+            }
+
+            // Mostra preview e comprimi immagine
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Mostra preview
+                const preview = document.getElementById('preview');
+                const previewImage = document.getElementById('previewImage');
+                const uploadLabel = document.querySelector('.upload-label');
+                
+                previewImage.src = e.target.result;
+                preview.style.display = 'block';
+                uploadLabel.style.display = 'none';
+                
+                // Comprimi immagine per invio
+                compressImage(e.target.result, function(compressedData) {
+                    compressedImageData = compressedData;
+                    
+                    // Mostra conferma caricamento
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate(50);
+                    }
+                    
+                    // Aggiungi indicatore successo
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'upload-success show';
+                    successMsg.innerHTML = '✓ Foto caricata correttamente';
+                    
+                    const existingMsg = document.querySelector('.upload-success');
+                    if (existingMsg) existingMsg.remove();
+                    
+                    document.getElementById('uploadArea').appendChild(successMsg);
+                    
+                    // Log dimensione compressa
+                    const sizeKB = Math.round(compressedData.length * 0.75 / 1024);
+                    console.log(`Foto compressa: ${sizeKB}KB`);
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePhoto() {
+            // Reset input file
+            const input = document.getElementById('foto_patente');
+            input.value = '';
+            
+            // Nascondi preview
+            document.getElementById('preview').style.display = 'none';
+            document.querySelector('.upload-label').style.display = 'flex';
+            
+            // Rimuovi dati compressi
+            compressedImageData = null;
+            
+            // Rimuovi messaggio successo
+            const successMsg = document.querySelector('.upload-success');
+            if (successMsg) successMsg.remove();
+            
+            // Feedback tattile
+            if ('vibrate' in navigator) {
+                navigator.vibrate(30);
+            }
+        }
+
+        function compressImage(dataUrl, callback) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Calcola dimensioni ridotte (max 800px larghezza)
+                let width = img.width;
+                let height = img.height;
+                const maxWidth = 800;
+                
+                if (width > maxWidth) {
+                    height = (maxWidth / width) * height;
+                    width = maxWidth;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Disegna immagine compressa
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Converti in base64 con compressione JPEG
+                const compressedData = canvas.toDataURL('image/jpeg', 0.7);
+                
+                // Rimuovi il prefisso data:image/jpeg;base64,
+                const base64Data = compressedData.split(',')[1];
+                
+                callback(base64Data);
+            };
+            img.src = dataUrl;
+        }
+
+        // ========================================
+        // GESTIONE SLOT ORARIO
+        // ========================================
+        
+        function selectSlot(element, value) {
+            // Rimuovi selezione precedente
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                slot.classList.remove('selected');
+                slot.setAttribute('aria-pressed', 'false');
+            });
+            
+            // Aggiungi selezione corrente
+            element.classList.add('selected');
+            element.setAttribute('aria-pressed', 'true');
+            
+            // Salva valore
+            document.getElementById('preferenza_orario').value = value;
+            
+            // Feedback tattile su mobile
+            if ('vibrate' in navigator) {
+                navigator.vibrate(10);
+            }
+        }
+
+        // Gestione click da tastiera (accessibilità)
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+
+        // ========================================
+        // GESTIONE FORM
+        // ========================================
+        
+        document.getElementById('prenotazioneForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validazione checkbox privacy
+            if (!document.getElementById('privacy').checked) {
+                alert('È necessario accettare il trattamento dei dati personali per procedere.');
+                return;
+            }
+            
+            // Disabilita pulsante invio
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Invio in corso...';
+            
+            // Nascondi form e mostra spinner
+            this.style.display = 'none';
+            document.getElementById('loading').classList.add('show');
+            
+            // Scroll to top su mobile
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Raccolta dati form
+            const formData = {
+                nome: this.nome.value.trim(),
+                cognome: this.cognome.value.trim(),
+                telefono: this.telefono.value.trim(),
+                email: this.email.value.trim() || 'Non fornita',
+                numero_patente: this.numero_patente.value.trim().toUpperCase() || 'Non fornito',
+                data_scadenza: this.data_scadenza.value ? 
+                    new Date(this.data_scadenza.value).toLocaleDateString('it-IT', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    }) : 'Non fornita',
+                preferenza_orario: this.preferenza_orario.value || 'Non selezionata',
+                note: this.note.value.trim() || 'Nessuna',
+                data_invio: new Date().toLocaleString('it-IT', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+            };
+
+            // Aggiungi foto se presente
+            if (compressedImageData) {
+                formData.foto_patente = compressedImageData;
+                formData.ha_foto = '✅ Sì - Foto allegata';
+            } else {
+                formData.ha_foto = '❌ No - Inseriti solo dati testuali';
+            }
+            
+            try {
+                // Invio email tramite EmailJS
+                await emailjs.send(SERVICE_ID, TEMPLATE_ID, formData);
+                
+                // Nascondi spinner e mostra successo
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('success').classList.add('show');
+                
+                // Feedback tattile successo su mobile
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([50, 100, 50]);
+                }
+                
+                // Reset form per nuovo invio
+                this.reset();
+                document.querySelectorAll('.time-slot').forEach(slot => {
+                    slot.classList.remove('selected');
+                    slot.setAttribute('aria-pressed', 'false');
+                });
+                
+                // Reset foto
+                if (compressedImageData) {
+                    removePhoto();
+                    compressedImageData = null;
+                }
+                
+            } catch (error) {
+                console.error('Errore invio:', error);
+                
+                // Messaggio di errore ottimizzato per mobile
+                const errorMessage = 'Si è verificato un errore durante l\'invio della richiesta.\n\n' +
+                                   'Opzioni alternative:\n' +
+                                   '📞 Chiamaci: 0424 523690\n' +
+                                   '📱 WhatsApp: 0424 523690\n' +
+                                   '📍 Vieni in sede: Galleria G.B. Verci 6, Bassano del Grappa';
+                
+                alert(errorMessage);
+                
+                // Ripristina interfaccia
+                document.getElementById('loading').classList.remove('show');
+                this.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Invia Richiesta di Prenotazione';
+                
+                // Scroll to submit button
+                submitBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        // ========================================
+        // OTTIMIZZAZIONI MOBILE
+        // ========================================
+        
+        // Previeni zoom su focus input (iOS)
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        });
+
+        // Gestione orientamento schermo
+        window.addEventListener('orientationchange', function() {
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+            }, 100);
+        });
+
+        // Rimuovi focus dagli input quando si scrolla (migliora UX mobile)
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (Math.abs(scrollTop - lastScrollTop) > 50) {
+                document.activeElement.blur();
+            }
+            lastScrollTop = scrollTop;
+        }, { passive: true });
+    </script>
+</body>
+</html>
