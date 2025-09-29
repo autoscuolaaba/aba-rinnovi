@@ -607,6 +607,21 @@
             display: flex;
         }
 
+        .photo-notice {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.8125rem;
+            display: none;
+        }
+
+        .photo-notice.show {
+            display: block;
+        }
+
         /* Tablet Styles (iPad, etc) */
         @media (min-width: 768px) {
             .container {
@@ -803,7 +818,7 @@
                             <div>
                                 <strong style="color: #dc2626;">Opzione Rapida</strong>
                                 <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #666;">
-                                    Carica una foto della patente e compileremo i dati per te
+                                    Scatta una foto della patente (facoltativo)
                                 </p>
                             </div>
                         </div>
@@ -832,6 +847,9 @@
                                 <button type="button" class="remove-photo" onclick="removePhoto()">
                                     ✕ Rimuovi foto
                                 </button>
+                            </div>
+                            <div class="photo-notice" id="photoNotice">
+                                ℹ️ La foto servirà per velocizzare il rinnovo. Ti contatteremo per riceverla via WhatsApp.
                             </div>
                         </div>
                     </div>
@@ -949,6 +967,9 @@
                         📱 WhatsApp: <a href="https://wa.me/390424523690" style="color: #25D366;">0424 523690</a>
                     </span>
                 </p>
+                <p class="photo-upload-note" id="photoUploadNote" style="display: none; margin-top: 1rem; padding: 1rem; background: #d1ecf1; border-radius: 0.5rem; color: #0c5460;">
+                    📸 Hai caricato una foto della patente. Ti contatteremo via WhatsApp per riceverla.
+                </p>
             </div>
         </div>
 
@@ -975,9 +996,8 @@
         // Inizializza EmailJS
         emailjs.init(PUBLIC_KEY);
 
-        // Variabile per memorizzare l'immagine compressa
-        let compressedImageData = null;
-
+        // Flag per tracciare se c'è una foto
+        let hasFotoCaricata = false;
 
         // ========================================
         // GESTIONE UPLOAD FOTO
@@ -994,130 +1014,56 @@
                 return;
             }
 
-            // Verifica dimensione file (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('La foto è troppo grande. Massimo 5MB.');
-                input.value = '';
-                return;
-            }
-
-            // Mostra preview e comprimi immagine
+            // Mostra preview
             const reader = new FileReader();
             reader.onload = function(e) {
-                // Mostra preview
                 const preview = document.getElementById('preview');
                 const previewImage = document.getElementById('previewImage');
                 const uploadLabel = document.querySelector('.upload-label');
+                const photoNotice = document.getElementById('photoNotice');
                 
                 previewImage.src = e.target.result;
                 preview.style.display = 'block';
                 uploadLabel.style.display = 'none';
+                photoNotice.classList.add('show');
                 
-                // Comprimi immagine per invio
-                compressImage(e.target.result, function(compressedData) {
-                    compressedImageData = compressedData;
-                    
-                    // Mostra conferma caricamento
-                    if ('vibrate' in navigator) {
-                        navigator.vibrate(50);
-                    }
-                    
-                    // Aggiungi indicatore successo
-                    const successMsg = document.createElement('div');
-                    successMsg.className = 'upload-success show';
-                    successMsg.innerHTML = '✓ Foto caricata correttamente';
-                    
-                    const existingMsg = document.querySelector('.upload-success');
-                    if (existingMsg) existingMsg.remove();
-                    
-                    document.getElementById('uploadArea').appendChild(successMsg);
-                    
-                    // Log dimensione compressa
-                    const sizeKB = Math.round(compressedData.length * 0.75 / 1024);
-                    console.log(`Foto compressa: ${sizeKB}KB`);
-                });
+                // Marca che c'è una foto
+                hasFotoCaricata = true;
+                
+                // Feedback
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
+                
+                // Mostra messaggio successo
+                const successMsg = document.createElement('div');
+                successMsg.className = 'upload-success show';
+                successMsg.innerHTML = '✓ Foto caricata - Ti contatteremo per riceverla';
+                
+                const existingMsg = document.querySelector('.upload-success');
+                if (existingMsg) existingMsg.remove();
+                
+                document.getElementById('uploadArea').appendChild(successMsg);
             };
             reader.readAsDataURL(file);
         }
 
         function removePhoto() {
-            // Reset input file
             const input = document.getElementById('foto_patente');
             input.value = '';
             
-            // Nascondi preview
             document.getElementById('preview').style.display = 'none';
             document.querySelector('.upload-label').style.display = 'flex';
+            document.getElementById('photoNotice').classList.remove('show');
             
-            // Rimuovi dati compressi
-            compressedImageData = null;
+            hasFotoCaricata = false;
             
-            // Rimuovi messaggio successo
             const successMsg = document.querySelector('.upload-success');
             if (successMsg) successMsg.remove();
             
-            // Feedback tattile
             if ('vibrate' in navigator) {
                 navigator.vibrate(30);
             }
-        }
-
-        function compressImage(dataUrl, callback) {
-            const img = new Image();
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                // Riduco ulteriormente le dimensioni per EmailJS
-                let width = img.width;
-                let height = img.height;
-                const maxWidth = 400; // Ridotto da 800 a 400
-                
-                if (width > maxWidth) {
-                    height = (maxWidth / width) * height;
-                    width = maxWidth;
-                }
-                
-                canvas.width = width;
-                canvas.height = height;
-                
-                // Disegna immagine compressa
-                ctx.drawImage(img, 0, 0, width, height);
-                
-                // Comprimi progressivamente finché non è abbastanza piccola
-                let quality = 0.5; // Partenza con qualità più bassa
-                let compressedData;
-                let base64Data;
-                let sizeInKB;
-                
-                do {
-                    compressedData = canvas.toDataURL('image/jpeg', quality);
-                    base64Data = compressedData.split(',')[1];
-                    sizeInKB = (base64Data.length * 0.75) / 1024; // Stima dimensione in KB
-                    
-                    quality -= 0.1;
-                } while (sizeInKB > 25 && quality > 0.1); // Max 25KB per lasciare spazio agli altri dati
-                
-                console.log(`Foto compressa a ${sizeInKB.toFixed(1)}KB con qualità ${(quality + 0.1).toFixed(1)}`);
-                
-                if (sizeInKB > 25) {
-                    alert('⚠️ La foto è troppo grande anche dopo la compressione.\n\n' +
-                          'Suggerimenti:\n' +
-                          '• Scatta la foto con meno luce di sfondo\n' +
-                          '• Inquadra solo la patente\n' +
-                          '• Oppure inserisci i dati manualmente');
-                    removePhoto();
-                    callback(null);
-                } else {
-                    callback(base64Data);
-                }
-            };
-            img.onerror = function() {
-                alert('Errore nel caricamento dell\'immagine. Riprova.');
-                removePhoto();
-                callback(null);
-            };
-            img.src = dataUrl;
         }
 
         // ========================================
@@ -1125,26 +1071,22 @@
         // ========================================
         
         function selectSlot(element, value) {
-            // Rimuovi selezione precedente
             document.querySelectorAll('.time-slot').forEach(slot => {
                 slot.classList.remove('selected');
                 slot.setAttribute('aria-pressed', 'false');
             });
             
-            // Aggiungi selezione corrente
             element.classList.add('selected');
             element.setAttribute('aria-pressed', 'true');
             
-            // Salva valore
             document.getElementById('preferenza_orario').value = value;
             
-            // Feedback tattile su mobile
             if ('vibrate' in navigator) {
                 navigator.vibrate(10);
             }
         }
 
-        // Gestione click da tastiera (accessibilità)
+        // Gestione tastiera per accessibilità
         document.querySelectorAll('.time-slot').forEach(slot => {
             slot.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -1161,25 +1103,24 @@
         document.getElementById('prenotazioneForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Validazione checkbox privacy
+            // Validazione privacy
             if (!document.getElementById('privacy').checked) {
                 alert('È necessario accettare il trattamento dei dati personali per procedere.');
                 return;
             }
             
-            // Disabilita pulsante invio
+            // Disabilita pulsante
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Invio in corso...';
             
-            // Nascondi form e mostra spinner
+            // Mostra loading
             this.style.display = 'none';
             document.getElementById('loading').classList.add('show');
             
-            // Scroll to top su mobile
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
-            // Raccolta dati form
+            // Raccolta dati - SENZA foto per evitare errori
             const formData = {
                 nome: this.nome.value.trim(),
                 cognome: this.cognome.value.trim(),
@@ -1187,110 +1128,47 @@
                 email: this.email.value.trim() || 'Non fornita',
                 numero_patente: this.numero_patente.value.trim().toUpperCase() || 'Non fornito',
                 data_scadenza: this.data_scadenza.value ? 
-                    new Date(this.data_scadenza.value).toLocaleDateString('it-IT', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    }) : 'Non fornita',
+                    new Date(this.data_scadenza.value).toLocaleDateString('it-IT') : 'Non fornita',
                 preferenza_orario: this.preferenza_orario.value || 'Non selezionata',
                 note: this.note.value.trim() || 'Nessuna',
-                data_invio: new Date().toLocaleString('it-IT', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })
+                foto_caricata: hasFotoCaricata ? '✅ SÌ - Richiedere via WhatsApp' : '❌ NO',
+                data_invio: new Date().toLocaleString('it-IT')
             };
-
-            // Aggiungi foto se presente
-            if (compressedImageData) {
-                // Controllo dimensione totale payload
-                const payloadTest = JSON.stringify({...formData, foto_patente: compressedImageData});
-                const payloadSizeKB = payloadTest.length / 1024;
-                
-                console.log(`Dimensione payload con foto: ${payloadSizeKB.toFixed(1)}KB`);
-                
-                if (payloadSizeKB < 48) {
-                    // OK, invia con foto
-                    formData.foto_patente = compressedImageData;
-                    formData.ha_foto = '✅ Sì - Foto allegata';
-                } else {
-                    // Payload troppo grande, invia senza foto
-                    formData.ha_foto = '📸 Foto caricata ma non inviata (dimensioni)';
-                    console.warn('Foto esclusa: payload supererebbe i limiti EmailJS');
-                    
-                    // Notifica l'utente
-                    if (!document.getElementById('photoWarningShown')) {
-                        const warning = document.createElement('div');
-                        warning.id = 'photoWarningShown';
-                        warning.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#fff3cd;color:#856404;padding:15px;border-radius:8px;border:1px solid #ffc107;z-index:9999;box-shadow:0 2px 10px rgba(0,0,0,0.1);max-width:90%;text-align:center;';
-                        warning.innerHTML = '⚠️ La foto è stata ricevuta ma verrà richiesta separatamente per dimensioni tecniche';
-                        document.body.appendChild(warning);
-                        setTimeout(() => warning.remove(), 5000);
-                    }
-                }
-            } else {
-                formData.ha_foto = '❌ No - Inseriti solo dati testuali';
-            }
             
             try {
-                // Invio email tramite EmailJS
+                // Invio solo dati testuali
                 await emailjs.send(SERVICE_ID, TEMPLATE_ID, formData);
                 
-                // Nascondi spinner e mostra successo
+                // Successo
                 document.getElementById('loading').classList.remove('show');
                 document.getElementById('success').classList.add('show');
                 
-                // Feedback tattile successo su mobile
+                // Mostra nota foto se caricata
+                if (hasFotoCaricata) {
+                    document.getElementById('photoUploadNote').style.display = 'block';
+                }
+                
                 if ('vibrate' in navigator) {
                     navigator.vibrate([50, 100, 50]);
                 }
                 
-                // Reset form per nuovo invio
+                // Reset form
                 this.reset();
                 document.querySelectorAll('.time-slot').forEach(slot => {
                     slot.classList.remove('selected');
-                    slot.setAttribute('aria-pressed', 'false');
                 });
-                
-                // Reset foto
-                if (compressedImageData) {
-                    removePhoto();
-                    compressedImageData = null;
-                }
+                removePhoto();
+                hasFotoCaricata = false;
                 
             } catch (error) {
-                console.error('Errore invio EmailJS:', error);
+                console.error('Errore:', error);
                 
-                // Analisi errore per feedback preciso
-                let errorMessage = 'Si è verificato un errore durante l\'invio della richiesta.\n\n';
+                alert('Errore nell\'invio. Contattaci:\n📞 0424 523690\n📱 WhatsApp: 0424 523690');
                 
-                if (error.text && error.text.includes('The request body is too large')) {
-                    errorMessage = '⚠️ Il form contiene troppi dati.\n\n' +
-                                 'Riprova senza foto o con una foto più piccola.\n\n';
-                } else if (error.text && error.text.includes('Service ID is invalid')) {
-                    errorMessage = '⚠️ Problema di configurazione del servizio.\n\n';
-                } else if (error.status === 422) {
-                    errorMessage = '⚠️ Dati non validi rilevati.\n\n' +
-                                 'Controlla che tutti i campi siano compilati correttamente.\n\n';
-                }
-                
-                errorMessage += 'Opzioni alternative:\n' +
-                              '📞 Chiamaci: 0424 523690\n' +
-                              '📱 WhatsApp: 0424 523690\n' +
-                              '📍 Vieni in sede: Galleria G.B. Verci 6, Bassano del Grappa';
-                
-                alert(errorMessage);
-                
-                // Ripristina interfaccia
                 document.getElementById('loading').classList.remove('show');
                 this.style.display = 'block';
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Invia Richiesta di Prenotazione';
-                
-                // Scroll to submit button
-                submitBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
 
@@ -1298,29 +1176,17 @@
         // OTTIMIZZAZIONI MOBILE
         // ========================================
         
-        // Previeni zoom su focus input (iOS)
         document.addEventListener('touchstart', function(e) {
             if (e.touches.length > 1) {
                 e.preventDefault();
             }
         });
 
-        // Gestione orientamento schermo
         window.addEventListener('orientationchange', function() {
             setTimeout(() => {
                 window.scrollTo(0, 0);
             }, 100);
         });
-
-        // Rimuovi focus dagli input quando si scrolla (migliora UX mobile)
-        let lastScrollTop = 0;
-        window.addEventListener('scroll', function() {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            if (Math.abs(scrollTop - lastScrollTop) > 50) {
-                document.activeElement.blur();
-            }
-            lastScrollTop = scrollTop;
-        }, { passive: true });
     </script>
 </body>
 </html>
