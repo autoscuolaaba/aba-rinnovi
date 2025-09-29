@@ -1068,10 +1068,10 @@
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 
-                // Calcola dimensioni ridotte (max 800px larghezza)
+                // Riduco ulteriormente le dimensioni per EmailJS
                 let width = img.width;
                 let height = img.height;
-                const maxWidth = 800;
+                const maxWidth = 400; // Ridotto da 800 a 400
                 
                 if (width > maxWidth) {
                     height = (maxWidth / width) * height;
@@ -1084,13 +1084,38 @@
                 // Disegna immagine compressa
                 ctx.drawImage(img, 0, 0, width, height);
                 
-                // Converti in base64 con compressione JPEG
-                const compressedData = canvas.toDataURL('image/jpeg', 0.7);
+                // Comprimi progressivamente finché non è abbastanza piccola
+                let quality = 0.5; // Partenza con qualità più bassa
+                let compressedData;
+                let base64Data;
+                let sizeInKB;
                 
-                // Rimuovi il prefisso data:image/jpeg;base64,
-                const base64Data = compressedData.split(',')[1];
+                do {
+                    compressedData = canvas.toDataURL('image/jpeg', quality);
+                    base64Data = compressedData.split(',')[1];
+                    sizeInKB = (base64Data.length * 0.75) / 1024; // Stima dimensione in KB
+                    
+                    quality -= 0.1;
+                } while (sizeInKB > 25 && quality > 0.1); // Max 25KB per lasciare spazio agli altri dati
                 
-                callback(base64Data);
+                console.log(`Foto compressa a ${sizeInKB.toFixed(1)}KB con qualità ${(quality + 0.1).toFixed(1)}`);
+                
+                if (sizeInKB > 25) {
+                    alert('⚠️ La foto è troppo grande anche dopo la compressione.\n\n' +
+                          'Suggerimenti:\n' +
+                          '• Scatta la foto con meno luce di sfondo\n' +
+                          '• Inquadra solo la patente\n' +
+                          '• Oppure inserisci i dati manualmente');
+                    removePhoto();
+                    callback(null);
+                } else {
+                    callback(base64Data);
+                }
+            };
+            img.onerror = function() {
+                alert('Errore nel caricamento dell\'immagine. Riprova.');
+                removePhoto();
+                callback(null);
             };
             img.src = dataUrl;
         }
@@ -1180,8 +1205,31 @@
 
             // Aggiungi foto se presente
             if (compressedImageData) {
-                formData.foto_patente = compressedImageData;
-                formData.ha_foto = '✅ Sì - Foto allegata';
+                // Controllo dimensione totale payload
+                const payloadTest = JSON.stringify({...formData, foto_patente: compressedImageData});
+                const payloadSizeKB = payloadTest.length / 1024;
+                
+                console.log(`Dimensione payload con foto: ${payloadSizeKB.toFixed(1)}KB`);
+                
+                if (payloadSizeKB < 48) {
+                    // OK, invia con foto
+                    formData.foto_patente = compressedImageData;
+                    formData.ha_foto = '✅ Sì - Foto allegata';
+                } else {
+                    // Payload troppo grande, invia senza foto
+                    formData.ha_foto = '📸 Foto caricata ma non inviata (dimensioni)';
+                    console.warn('Foto esclusa: payload supererebbe i limiti EmailJS');
+                    
+                    // Notifica l'utente
+                    if (!document.getElementById('photoWarningShown')) {
+                        const warning = document.createElement('div');
+                        warning.id = 'photoWarningShown';
+                        warning.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#fff3cd;color:#856404;padding:15px;border-radius:8px;border:1px solid #ffc107;z-index:9999;box-shadow:0 2px 10px rgba(0,0,0,0.1);max-width:90%;text-align:center;';
+                        warning.innerHTML = '⚠️ La foto è stata ricevuta ma verrà richiesta separatamente per dimensioni tecniche';
+                        document.body.appendChild(warning);
+                        setTimeout(() => warning.remove(), 5000);
+                    }
+                }
             } else {
                 formData.ha_foto = '❌ No - Inseriti solo dati testuali';
             }
@@ -1213,14 +1261,25 @@
                 }
                 
             } catch (error) {
-                console.error('Errore invio:', error);
+                console.error('Errore invio EmailJS:', error);
                 
-                // Messaggio di errore ottimizzato per mobile
-                const errorMessage = 'Si è verificato un errore durante l\'invio della richiesta.\n\n' +
-                                   'Opzioni alternative:\n' +
-                                   '📞 Chiamaci: 0424 523690\n' +
-                                   '📱 WhatsApp: 0424 523690\n' +
-                                   '📍 Vieni in sede: Galleria G.B. Verci 6, Bassano del Grappa';
+                // Analisi errore per feedback preciso
+                let errorMessage = 'Si è verificato un errore durante l\'invio della richiesta.\n\n';
+                
+                if (error.text && error.text.includes('The request body is too large')) {
+                    errorMessage = '⚠️ Il form contiene troppi dati.\n\n' +
+                                 'Riprova senza foto o con una foto più piccola.\n\n';
+                } else if (error.text && error.text.includes('Service ID is invalid')) {
+                    errorMessage = '⚠️ Problema di configurazione del servizio.\n\n';
+                } else if (error.status === 422) {
+                    errorMessage = '⚠️ Dati non validi rilevati.\n\n' +
+                                 'Controlla che tutti i campi siano compilati correttamente.\n\n';
+                }
+                
+                errorMessage += 'Opzioni alternative:\n' +
+                              '📞 Chiamaci: 0424 523690\n' +
+                              '📱 WhatsApp: 0424 523690\n' +
+                              '📍 Vieni in sede: Galleria G.B. Verci 6, Bassano del Grappa';
                 
                 alert(errorMessage);
                 
