@@ -484,11 +484,12 @@
         }
 
         .upload-option {
-            background: #fef4f4;
-            border: 2px dashed #dc2626;
+            background: #f8f9fa;
+            border: 1px dashed #dee2e6;
             border-radius: 0.75rem;
             padding: 1rem;
             margin-bottom: 1.5rem;
+            opacity: 0.9;
         }
 
         .upload-header {
@@ -506,8 +507,8 @@
             align-items: center;
             justify-content: center;
             gap: 1rem;
-            padding: 2rem 1rem;
-            background: white;
+            padding: 1.5rem 1rem;
+            background: #fafafa;
             border: 1px solid #e5e7eb;
             border-radius: 0.5rem;
             cursor: pointer;
@@ -517,7 +518,7 @@
 
         .upload-label:active {
             transform: scale(0.98);
-            background: #fafafa;
+            background: #f5f5f5;
         }
 
         .upload-icon {
@@ -728,7 +729,7 @@
                 <div class="logo-subtitle">AUTOSCUOLE</div>
             </div>
             <h1>Prenotazione Rinnovo Patente</h1>
-            <p>Compila il modulo e sarai ricontattato entro 24 ore</p>
+            <p>Compila il modulo e ti contatteremo per conferma</p>
         </div>
 
         <div class="card">
@@ -810,55 +811,6 @@
                     </div>
                 </div>
 
-                <!-- Opzione Upload Foto -->
-                <div class="upload-section">
-                    <div class="upload-option">
-                        <div class="upload-header">
-                            <span style="font-size: 1.5rem; margin-right: 0.5rem;">📸</span>
-                            <div>
-                                <strong style="color: #dc2626;">Opzione Rapida</strong>
-                                <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #666;">
-                                    Scatta una foto della patente (facoltativo)
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="upload-area" id="uploadArea">
-                            <input 
-                                type="file" 
-                                id="foto_patente"
-                                name="foto_patente" 
-                                accept="image/*"
-                                capture="environment"
-                                style="display: none;"
-                                onchange="handleFileUpload(this)"
-                            >
-                            <label for="foto_patente" class="upload-label">
-                                <div class="upload-icon">📷</div>
-                                <div class="upload-text">
-                                    <strong>Scatta o carica una foto</strong><br>
-                                    <span style="font-size: 0.75rem; color: #999;">
-                                        Tocca per aprire la fotocamera
-                                    </span>
-                                </div>
-                            </label>
-                            <div id="preview" class="preview-container" style="display: none;">
-                                <img id="previewImage" alt="Anteprima patente">
-                                <button type="button" class="remove-photo" onclick="removePhoto()">
-                                    ✕ Rimuovi foto
-                                </button>
-                            </div>
-                            <div class="photo-notice" id="photoNotice">
-                                ℹ️ La foto servirà per velocizzare il rinnovo. Ti contatteremo per riceverla via WhatsApp.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="divider-with-text">
-                        <span>oppure inserisci manualmente</span>
-                    </div>
-                </div>
-
                 <div class="form-group">
                     <label for="numero_patente">Numero Patente <span>(punto 5)</span></label>
                     <input 
@@ -882,6 +834,55 @@
                     >
                 </div>
 
+                <!-- Opzione Upload Foto - SECONDARIA -->
+                <div class="upload-section" style="margin-top: 2rem;">
+                    <div class="divider-with-text">
+                        <span>opzione aggiuntiva</span>
+                    </div>
+                    
+                    <div class="upload-option" style="background: #f8f9fa; border: 1px solid #dee2e6; border-style: dashed;">
+                        <div class="upload-header">
+                            <span style="font-size: 1.25rem; margin-right: 0.5rem;">📸</span>
+                            <div>
+                                <strong style="color: #666; font-size: 0.95rem;">Vuoi velocizzare la pratica?</strong>
+                                <p style="margin: 0.25rem 0 0 0; font-size: 0.8125rem; color: #999;">
+                                    Dopo aver inviato la prenotazione, potrai mandarci la foto della patente su WhatsApp al numero <strong>0424 523690</strong>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="upload-area" id="uploadArea">
+                            <input 
+                                type="file" 
+                                id="foto_patente"
+                                name="foto_patente" 
+                                accept="image/*"
+                                capture="environment"
+                                style="display: none;"
+                                onchange="handleFileUpload(this)"
+                            >
+                            <label for="foto_patente" class="upload-label" style="padding: 1.5rem 1rem; background: #fafafa;">
+                                <div class="upload-icon" style="font-size: 2rem;">📷</div>
+                                <div class="upload-text">
+                                    <strong style="color: #666; font-size: 0.875rem;">Prepara la foto ora</strong><br>
+                                    <span style="font-size: 0.7rem; color: #999;">
+                                        Caricala qui e poi inviala su WhatsApp dopo la prenotazione
+                                    </span>
+                                </div>
+                            </label>
+                            <div id="preview" class="preview-container" style="display: none;">
+                                <img id="previewImage" alt="Anteprima patente">
+                                <button type="button" class="remove-photo" onclick="removePhoto()">
+                                    ✕ Rimuovi foto
+                                </button>
+                            </div>
+                            <div class="photo-notice" id="photoNotice" style="background: #d1ecf1; border-color: #bee5eb;">
+                                📱 <strong>Nota:</strong> L'autoscuola riceverà solo una notifica che hai preparato la foto. Dovrai inviarla su WhatsApp al <strong>0424 523690</strong> dopo la prenotazione
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="divider"></div>
 
                 <!-- Preferenze Orario -->
@@ -889,14 +890,14 @@
 
                 <div class="orari-box">
                     <div class="orari-header">
-                        <h4>Orari di ricevimento</h4>
+                        <h4>ORARI DEI MEDICI PER VISITA</h4>
                     </div>
                     <div class="orari-content">
                         <div class="orari-grid">
                             <div class="orari-giorno">LUNEDÌ</div>
-                            <div class="orari-ora">ore 18:00</div>
+                            <div class="orari-ora"><strong>ore 18:00</strong></div>
                             <div class="orari-giorno">GIOVEDÌ</div>
-                            <div class="orari-ora">ore 18:30</div>
+                            <div class="orari-ora"><strong>ore 18:30</strong></div>
                         </div>
                     </div>
                 </div>
@@ -906,11 +907,11 @@
                     <div class="time-slots">
                         <div class="time-slot" onclick="selectSlot(this, 'Lunedì 18:00')" role="button" tabindex="0">
                             <strong>Lunedì</strong>
-                            <span>ore 18:00</span>
+                            <span><strong>ore 18:00</strong></span>
                         </div>
                         <div class="time-slot" onclick="selectSlot(this, 'Giovedì 18:30')" role="button" tabindex="0">
                             <strong>Giovedì</strong>
-                            <span>ore 18:30</span>
+                            <span><strong>ore 18:30</strong></span>
                         </div>
                         <div class="time-slot" onclick="selectSlot(this, 'Entrambi i giorni')" role="button" tabindex="0">
                             <strong>Entrambi</strong>
@@ -959,16 +960,17 @@
                 <h2>Richiesta Inviata con Successo!</h2>
                 <p>
                     La tua prenotazione è stata registrata.<br>
-                    Sarai ricontattato entro 24 ore lavorative per confermare l'appuntamento.<br><br>
+                    <strong style="color: #25D366; font-size: 1.1rem;">📱 Ti contatteremo su WhatsApp entro 24 ore</strong><br>
+                    per confermare l'appuntamento e ricevere eventuali documenti.<br><br>
                     <strong style="color: #dc2626;">Autoscuola ABA</strong><br>
                     Galleria G.B. Verci 6, Bassano del Grappa<br>
                     Tel: <a href="tel:0424523690">0424 523690</a><br>
                     <span style="color: #25D366; font-weight: 500;">
-                        📱 WhatsApp: <a href="https://wa.me/390424523690" style="color: #25D366;">0424 523690</a>
+                        WhatsApp: <a href="https://wa.me/390424523690" style="color: #25D366;">0424 523690</a>
                     </span>
                 </p>
-                <p class="photo-upload-note" id="photoUploadNote" style="display: none; margin-top: 1rem; padding: 1rem; background: #d1ecf1; border-radius: 0.5rem; color: #0c5460;">
-                    📸 Hai caricato una foto della patente. Ti contatteremo via WhatsApp per riceverla.
+                <p class="photo-upload-note" id="photoUploadNote" style="display: none; margin-top: 1rem; padding: 1rem; background: #d4edda; border-radius: 0.5rem; color: #155724;">
+                    📸 <strong>Foto preparata:</strong> Puoi ora inviarla su WhatsApp al numero <strong>0424 523690</strong> per velocizzare la pratica
                 </p>
             </div>
         </div>
@@ -1038,7 +1040,7 @@
                 // Mostra messaggio successo
                 const successMsg = document.createElement('div');
                 successMsg.className = 'upload-success show';
-                successMsg.innerHTML = '✓ Foto caricata - Ti contatteremo per riceverla';
+                successMsg.innerHTML = '✓ Foto pronta - Dopo la prenotazione inviala su WhatsApp al 0424 523690';
                 
                 const existingMsg = document.querySelector('.upload-success');
                 if (existingMsg) existingMsg.remove();
@@ -1131,7 +1133,7 @@
                     new Date(this.data_scadenza.value).toLocaleDateString('it-IT') : 'Non fornita',
                 preferenza_orario: this.preferenza_orario.value || 'Non selezionata',
                 note: this.note.value.trim() || 'Nessuna',
-                foto_caricata: hasFotoCaricata ? '✅ SÌ - Richiedere via WhatsApp' : '❌ NO',
+                foto_caricata: hasFotoCaricata ? 'SI - Cliente ha preparato foto (invierà su WhatsApp)' : 'NO',
                 data_invio: new Date().toLocaleString('it-IT')
             };
             
