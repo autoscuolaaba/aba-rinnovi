@@ -623,6 +623,37 @@
             display: block;
         }
 
+        /* Date Selection Styles */
+        #dateSelectionGroup {
+            animation: slideDown 0.3s ease;
+            background: #fef9f4;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px dashed #dc2626;
+            margin-top: 1rem;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #dateError {
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
         /* Tablet Styles (iPad, etc) */
         @media (min-width: 768px) {
             .container {
@@ -925,6 +956,27 @@
                     <input type="hidden" name="preferenza_orario" id="preferenza_orario">
                 </div>
 
+                <!-- Selezione Data Specifica -->
+                <div class="form-group" id="dateSelectionGroup" style="display: none;">
+                    <label for="data_appuntamento">
+                        Seleziona la data preferita <span class="required">*</span>
+                        <span id="dateHint" style="color: #666; font-size: 0.875rem; display: block; margin-top: 0.25rem;">
+                            Puoi scegliere solo i <span id="allowedDay"></span> disponibili
+                        </span>
+                    </label>
+                    <input 
+                        type="date" 
+                        id="data_appuntamento"
+                        name="data_appuntamento"
+                        min=""
+                        onchange="validateDate(this)"
+                        style="background: #fef4f4;"
+                    >
+                    <div id="dateError" style="color: #dc2626; font-size: 0.875rem; margin-top: 0.5rem; display: none;">
+                        ⚠️ Seleziona un <span id="errorDay"></span> valido
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="note">Note o richieste particolari</label>
                     <textarea 
@@ -998,8 +1050,9 @@
         // Inizializza EmailJS
         emailjs.init(PUBLIC_KEY);
 
-        // Flag per tracciare se c'è una foto
+        // Variabili globali
         let hasFotoCaricata = false;
+        let selectedDayType = '';
 
         // ========================================
         // GESTIONE UPLOAD FOTO
@@ -1069,7 +1122,7 @@
         }
 
         // ========================================
-        // GESTIONE SLOT ORARIO
+        // GESTIONE SLOT ORARIO E DATE
         // ========================================
         
         function selectSlot(element, value) {
@@ -1083,9 +1136,110 @@
             
             document.getElementById('preferenza_orario').value = value;
             
+            // Gestione visualizzazione calendario date
+            const dateGroup = document.getElementById('dateSelectionGroup');
+            const dateInput = document.getElementById('data_appuntamento');
+            const allowedDaySpan = document.getElementById('allowedDay');
+            const errorDaySpan = document.getElementById('errorDay');
+            
+            if (value.includes('Lunedì')) {
+                selectedDayType = 'monday';
+                dateGroup.style.display = 'block';
+                allowedDaySpan.textContent = 'lunedì';
+                errorDaySpan.textContent = 'lunedì';
+                dateInput.required = true;
+                setMinDate(dateInput);
+            } else if (value.includes('Giovedì')) {
+                selectedDayType = 'thursday';
+                dateGroup.style.display = 'block';
+                allowedDaySpan.textContent = 'giovedì';
+                errorDaySpan.textContent = 'giovedì';
+                dateInput.required = true;
+                setMinDate(dateInput);
+            } else if (value.includes('Entrambi')) {
+                selectedDayType = 'both';
+                dateGroup.style.display = 'block';
+                allowedDaySpan.textContent = 'lunedì o giovedì';
+                errorDaySpan.textContent = 'lunedì o giovedì';
+                dateInput.required = true;
+                setMinDate(dateInput);
+            } else {
+                selectedDayType = '';
+                dateGroup.style.display = 'none';
+                dateInput.required = false;
+                dateInput.value = '';
+            }
+            
+            // Reset errore quando si cambia selezione
+            document.getElementById('dateError').style.display = 'none';
+            
             if ('vibrate' in navigator) {
                 navigator.vibrate(10);
             }
+        }
+
+        function setMinDate(input) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            input.min = tomorrow.toISOString().split('T')[0];
+            
+            // Imposta max a 3 mesi da oggi
+            const maxDate = new Date();
+            maxDate.setMonth(maxDate.getMonth() + 3);
+            input.max = maxDate.toISOString().split('T')[0];
+        }
+
+        function validateDate(input) {
+            const selectedDate = new Date(input.value);
+            const dayOfWeek = selectedDate.getDay();
+            const dateError = document.getElementById('dateError');
+            
+            let isValid = false;
+            
+            if (selectedDayType === 'monday' && dayOfWeek === 1) {
+                isValid = true;
+            } else if (selectedDayType === 'thursday' && dayOfWeek === 4) {
+                isValid = true;
+            } else if (selectedDayType === 'both' && (dayOfWeek === 1 || dayOfWeek === 4)) {
+                isValid = true;
+            }
+            
+            if (!isValid && input.value) {
+                dateError.style.display = 'block';
+                input.style.borderColor = '#dc2626';
+                
+                // Trova il prossimo giorno valido
+                const nextValid = findNextValidDate(selectedDate);
+                
+                setTimeout(() => {
+                    if (confirm(`La data selezionata non è valida.\n\nVuoi selezionare ${nextValid.toLocaleDateString('it-IT', {weekday: 'long', day: 'numeric', month: 'long'})} invece?`)) {
+                        input.value = nextValid.toISOString().split('T')[0];
+                        dateError.style.display = 'none';
+                        input.style.borderColor = '#d1d5db';
+                    } else {
+                        input.value = '';
+                    }
+                }, 100);
+            } else {
+                dateError.style.display = 'none';
+                input.style.borderColor = '#d1d5db';
+            }
+        }
+
+        function findNextValidDate(fromDate) {
+            const date = new Date(fromDate);
+            const maxTries = 7;
+            
+            for (let i = 1; i <= maxTries; i++) {
+                date.setDate(date.getDate() + 1);
+                const dayOfWeek = date.getDay();
+                
+                if (selectedDayType === 'monday' && dayOfWeek === 1) return date;
+                if (selectedDayType === 'thursday' && dayOfWeek === 4) return date;
+                if (selectedDayType === 'both' && (dayOfWeek === 1 || dayOfWeek === 4)) return date;
+            }
+            
+            return date;
         }
 
         // Gestione tastiera per accessibilità
@@ -1111,6 +1265,31 @@
                 return;
             }
             
+            // Validazione data appuntamento se richiesta
+            const dateInput = document.getElementById('data_appuntamento');
+            if (dateInput.required && !dateInput.value) {
+                alert('Seleziona una data per l\'appuntamento');
+                dateInput.focus();
+                return;
+            }
+            
+            // Validazione giorno corretto
+            if (dateInput.value && selectedDayType) {
+                const selectedDate = new Date(dateInput.value);
+                const dayOfWeek = selectedDate.getDay();
+                let isValid = false;
+                
+                if (selectedDayType === 'monday' && dayOfWeek === 1) isValid = true;
+                else if (selectedDayType === 'thursday' && dayOfWeek === 4) isValid = true;
+                else if (selectedDayType === 'both' && (dayOfWeek === 1 || dayOfWeek === 4)) isValid = true;
+                
+                if (!isValid) {
+                    alert('La data selezionata non corrisponde al giorno scelto');
+                    dateInput.focus();
+                    return;
+                }
+            }
+            
             // Disabilita pulsante
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
@@ -1132,10 +1311,19 @@
                 data_scadenza: this.data_scadenza.value ? 
                     new Date(this.data_scadenza.value).toLocaleDateString('it-IT') : 'Non fornita',
                 preferenza_orario: this.preferenza_orario.value || 'Non selezionata',
+                data_appuntamento: this.data_appuntamento && this.data_appuntamento.value ? 
+                    new Date(this.data_appuntamento.value).toLocaleDateString('it-IT', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    }) : 'Non specificata',
                 note: this.note.value.trim() || 'Nessuna',
                 foto_caricata: hasFotoCaricata ? 'SI - Cliente ha preparato foto (invierà su WhatsApp)' : 'NO',
                 data_invio: new Date().toLocaleString('it-IT')
             };
+            
+            console.log('Invio dati con data appuntamento:', formData);
             
             try {
                 // Invio solo dati testuali
@@ -1148,6 +1336,15 @@
                 // Mostra nota foto se caricata
                 if (hasFotoCaricata) {
                     document.getElementById('photoUploadNote').style.display = 'block';
+                }
+                
+                // Aggiungi info sulla data se selezionata
+                if (formData.data_appuntamento && formData.data_appuntamento !== 'Non specificata') {
+                    const successDiv = document.getElementById('success');
+                    const dateInfo = document.createElement('div');
+                    dateInfo.style.cssText = 'background: #d4edda; padding: 1rem; margin: 1rem auto; border-radius: 0.5rem; max-width: 90%;';
+                    dateInfo.innerHTML = `📅 <strong>Appuntamento preferito:</strong> ${formData.data_appuntamento}`;
+                    successDiv.insertBefore(dateInfo, successDiv.querySelector('p'));
                 }
                 
                 if ('vibrate' in navigator) {
