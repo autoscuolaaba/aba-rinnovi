@@ -942,11 +942,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="numero_patente">Numero Patente <span>(punto 5)</span></label>
+                    <label for="numero_patente">Numero Patente <span>(punto 5)</span> <span class="required">*</span></label>
                     <input 
                         type="text" 
                         id="numero_patente"
                         name="numero_patente" 
+                        required
                         placeholder="Es: VI1234567X" 
                         style="text-transform: uppercase;"
                         autocorrect="off"
@@ -956,11 +957,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="data_scadenza">Data di Scadenza <span>(punto 4b)</span></label>
+                    <label for="data_scadenza">Data di Scadenza <span>(punto 4b)</span> <span class="required">*</span></label>
                     <input 
                         type="date" 
                         id="data_scadenza"
                         name="data_scadenza"
+                        required
                     >
                 </div>
 
@@ -1119,8 +1121,7 @@
                 <h2>Richiesta Inviata con Successo!</h2>
                 <p>
                     La tua prenotazione è stata registrata.<br>
-                    <strong style="color: #25D366; font-size: 1.1rem;">📱 Ti contatteremo su WhatsApp entro 24 ore</strong><br>
-                    per confermare l'appuntamento e ricevere eventuali documenti.<br><br>
+                    <strong style="color: #25D366; font-size: 1.1rem;">📱 Contattateci al nostro numero WhatsApp per la conferma della disponibilità<br>del giorno scelto!</strong><br><br>
                     <strong style="color: #dc2626;">Autoscuola ABA</strong><br>
                     Galleria G.B. Verci 6, Bassano del Grappa<br>
                     Tel: <a href="tel:0424523690">0424 523690</a><br>
@@ -1480,9 +1481,9 @@
                 cognome: this.cognome.value.trim(),
                 telefono: this.telefono.value.trim(),
                 email: this.email.value.trim() || 'Non fornita',
-                numero_patente: this.numero_patente.value.trim().toUpperCase() || 'Non fornito',
+                numero_patente: this.numero_patente.value.trim().toUpperCase(),
                 data_scadenza: this.data_scadenza.value ? 
-                    new Date(this.data_scadenza.value).toLocaleDateString('it-IT') : 'Non fornita',
+                    new Date(this.data_scadenza.value).toLocaleDateString('it-IT') : '',
                 preferenza_orario: this.preferenza_orario.value || 'Non selezionata',
                 data_appuntamento: (() => {
                     const dateValue = this.data_appuntamento.value;
